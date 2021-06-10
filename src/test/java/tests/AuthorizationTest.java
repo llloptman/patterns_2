@@ -1,3 +1,5 @@
+package tests;
+
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import data.DataGenerator;
@@ -14,6 +16,7 @@ import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
+import static data.DataGenerator.addUserInfo;
 import static data.DataGenerator.generatePassword;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,45 +30,10 @@ class AuthorizationTest {
         $("[data-test-id='action-login']").click();
     }
 
-    private static RequestSpecification requestSpec = new RequestSpecBuilder()
-            .setBaseUri("http://localhost")
-            .setPort(9999)
-            .setAccept(ContentType.JSON)
-            .setContentType(ContentType.JSON)
-            .log(LogDetail.ALL)
-            .build();
-
-    static void addUserInfo(DataGenerator.UserInfo userInfo) {
-        // сам запрос
-        given() // "дано"
-                .spec(requestSpec) // указываем, какую спецификацию используем
-                .body(userInfo) // передаём в теле объект, который будет преобразован в JSON
-                .when() // "когда"
-                .post("/api/system/users") // на какой путь, относительно BaseUri отправляем запрос
-                .then() // "тогда ожидаем"
-                .statusCode(200); // код 200 OK
-    }
-    static void addUserInfoStrings(String login,String password,String status) {
-        // сам запрос
-        given() // "дано"
-                .spec(requestSpec) // указываем, какую спецификацию используем
-                .body(login + password + status) // передаём в теле объект, который будет преобразован в JSON
-                .when() // "когда"
-                .post("/api/system/users") // на какой путь, относительно BaseUri отправляем запрос
-                .then() // "тогда ожидаем"
-                .statusCode(200); // код 200 OK
-    }// TODO: 08.06.2021  f
 
     @BeforeAll
     static void setUpAll() {
-        // сам запрос
-        given() // "дано"
-                .spec(requestSpec) // указываем, какую спецификацию используем
-                .body(userInfo) // передаём в теле объект, который будет преобразован в JSON
-                .when() // "когда"
-                .post("/api/system/users") // на какой путь, относительно BaseUri отправляем запрос
-                .then() // "тогда ожидаем"
-                .statusCode(200); // код 200 OK
+        addUserInfo(userInfo);
     }
 
     @BeforeEach
@@ -137,11 +105,11 @@ class AuthorizationTest {
     }
 
     @Test
-    public void successLoginAfterPasswordChange(){
-DataGenerator.UserInfo updateUser = DataGenerator.Registration.RegistrationDto(userInfo.getLogin(),
-        DataGenerator.generatePassword("en-EN"),userInfo.getStatus());
+    public void successLoginAfterPasswordChange() {
+        DataGenerator.UserInfo updateUser = DataGenerator.Registration.RegistrationDto(userInfo.getLogin(),
+                DataGenerator.generatePassword("en-EN"), userInfo.getStatus());
 
-addUserInfo(updateUser);
+        addUserInfo(updateUser);
 
         $("[data-test-id='login'] input").setValue(updateUser.getLogin());
         $("[data-test-id='password'] input").setValue(updateUser.getPassword());
